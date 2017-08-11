@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+
+
+        http://www.springframework.org/schema/aop
+        http://www.springframework.org/schema/aop/spring-aop.xsd
+        http://www.springframework.org/schema/tx
+        http://www.springframework.org/schema/tx/spring-tx.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <!--<bean id="txFilter" class="tx.TxFilter" />-->
+    <!--<aop:config>-->
+        <!--<aop:pointcut id="pc" expression="execution(* tx*(..))"/>-->
+        <!--<aop:advisor advice-ref="txFilter" pointcut-ref="pc"/>-->
+    <!--</aop:config>-->
+    <!--<aop:aspectj-autoproxy proxy-target-class="true"  />-->
+
+    <bean id="druidStatFilter" class="com.alibaba.druid.filter.stat.StatFilter">
+        <property name="mergeSql" value="false" />
+        <property name="slowSqlMillis" value="5000" />
+        <property name="logSlowSql" value="true" />
+    </bean>
+
+    <bean id="parentDatasource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="root"></property>
+        <property name="initialSize" value="10 "></property>
+        <property name="maxActive" value="100"></property>
+        <property name="minIdle" value="10"></property>
+        <property name="testWhileIdle" value="true"></property>
+        <property name="validationQuery" value="SELECT NOW()"></property>
+        <property name="proxyFilters">
+            <list>
+                <ref bean="druidStatFilter" />
+            </list>
+        </property>
+    </bean>
+
+
+
+    <!-- /////////////////////////////	account业务数据源 -->
+    <bean id="accountDatasource" class="com.alibaba.druid.pool.DruidDataSource"
+          destroy-method="close" parent="parentDatasource">
+        <property name="url" value="jdbc:mysql://localhost:3306/test" />
+    </bean>
+    <bean id="accountSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="accountDatasource" />
+        <property name="mapperLocations" value="classpath:tx/mapper/*.xml"></property>
+    </bean>
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="tx.mapper" />
+        <property name="sqlSessionFactory" ref="accountSessionFactory" />
+    </bean>
+
+    <context:component-scan base-package="tx"/>
+    <!-- 定义事务管理器（声明式的事务） -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="accountDatasource"/>
+    </bean>
+
+    <!-- enable transaction annotation support -->
+    <tx:annotation-driven transaction-manager="transactionManager"/>
+</beans>
