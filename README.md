@@ -27,3 +27,6 @@ com.alibaba.dubbo.rpc.Filter文件，配置项见doc中txConsumerFilter
         <aop:advisor advice-ref="txFilter" pointcut-ref="pc"/>
     </aop:config>
     <aop:aspectj-autoproxy proxy-target-class="true"  />
+
+txTest11,txTest12 为服务端
+txTest21 为客户端
