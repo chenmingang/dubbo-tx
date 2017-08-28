@@ -22,15 +22,12 @@ public class TxServerFilter implements Filter {
     private static final int txThreadNum = 20;
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(txThreadNum);
 
-    /**
-     * transactionManager = (DataSourceTransactionManager) ApplicationContextHelper.getBean("transactionManager");
-     * 如果以上方式不适合，可自行想办法注入
-     */
+
     private static DataSourceTransactionManager transactionManager;
 
     public Result invoke(Invoker<?> invoker, Invocation invocation) throws RpcException {
         if (transactionManager == null) {
-            transactionManager = (DataSourceTransactionManager) ApplicationContextHelper.getBean("transactionManager");
+            transactionManager = TransactionManagerFactory.getDataSourceTransactionManager();
         }
         Result result = new RpcResult();
         final String txId = RpcContext.getContext().getAttachment("txId");

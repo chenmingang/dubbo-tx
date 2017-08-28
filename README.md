@@ -7,6 +7,16 @@ com.alibaba.dubbo.rpc.Filter文件
 - 配置service filter
 <dubbo:service  interface="tx.ProviderService" ref="providerServiceImpl" timeout="10000"  filter="txServerFilter" retries="0"/>
 
+    <!-- 配置事务管理器 -->
+	<bean id="transactionManager"
+		class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+    <bean id="txManagerFactory" class="tx.TransactionManagerFactory">
+        <constructor-arg ref="transactionManager"/>
+    </bean>
+    
 ### 消费端
 
 - 在src/main/resources/META-INF/dubbo/internal文件夹下添加
