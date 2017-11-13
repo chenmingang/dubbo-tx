@@ -38,18 +38,21 @@ public class TxServerFilter implements Filter {
             addTask("txCommit", txCommit, invoker, invocation);
             System.out.println("commit:" + txCommit);
             map.remove(txCommit);
+            RpcContext.getContext().removeAttachment("txCommit");
             return result;
         }
         if (txRollBack != null) {
             addTask("rollBack", txRollBack, invoker, invocation);
             System.out.println("rollBack:" + txRollBack);
             map.remove(txRollBack);
+            RpcContext.getContext().removeAttachment("txRollBack");
             return result;
         }
         if (txId != null) {
             addTask("add", txId, invoker, invocation);
             result = addTask("invoke", txId, invoker, invocation);
             System.out.println("invoke:" + txId);
+            RpcContext.getContext().removeAttachment("txId");
             return result;
         } else {
             return invoker.invoke(invocation);

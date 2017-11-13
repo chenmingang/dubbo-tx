@@ -34,6 +34,6 @@ public class ConsumerServiceImpl implements ConsumerService {
         System.out.println(providerService2.hello(12));
         System.out.println(providerService2.hello(13));
         System.out.println(providerService2.hello(14));
-        throw new RuntimeException("Test");
+//        throw new RuntimeException("Test");
     }
 }
